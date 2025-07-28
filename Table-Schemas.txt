@@ -1,0 +1,87 @@
+Run The following script in SQL Workbench to create the database and tables.  
+
+-- Create the database if it doesn't exist
+CREATE DATABASE IF NOT EXISTS wealth_management;
+
+-- Use the newly created database
+USE wealth_management;
+
+-- Table for Users
+CREATE TABLE IF NOT EXISTS users (
+    user_id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(255) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL, -- In a real application, store hashed passwords!
+    email VARCHAR(255) UNIQUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Table for Accounts (e.g., Savings, Checking, Brokerage)
+CREATE TABLE IF NOT EXISTS accounts (
+    account_id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    account_name VARCHAR(255) NOT NULL,
+    account_type VARCHAR(50) NOT NULL, -- e.g., 'Savings', 'Checking', 'Brokerage', 'Retirement'
+    current_balance DECIMAL(15, 2) NOT NULL DEFAULT 0.00,
+    currency VARCHAR(10) NOT NULL DEFAULT 'USD',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+);
+
+-- Table for Assets (e.g., Stocks, Bonds, Real Estate, Crypto)
+CREATE TABLE IF NOT EXISTS assets (
+    asset_id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    account_id INT, -- Can be NULL if asset is not tied to a specific account (e.g., physical asset)
+    asset_name VARCHAR(255) NOT NULL,
+    asset_type VARCHAR(50) NOT NULL, -- e.g., 'Stock', 'Bond', 'Real Estate', 'Cryptocurrency', 'Mutual Fund'
+    current_value DECIMAL(15, 2) NOT NULL DEFAULT 0.00,
+    quantity DECIMAL(15, 4) DEFAULT 0.0000, -- For stocks, crypto, etc.
+    purchase_price DECIMAL(15, 2),
+    purchase_date DATE,
+    currency VARCHAR(10) NOT NULL DEFAULT 'USD',
+    notes TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (account_id) REFERENCES accounts(account_id) ON DELETE SET NULL
+);
+
+-- Table for Transactions (e.g., Deposits, Withdrawals, Buys, Sells)
+CREATE TABLE IF NOT EXISTS transactions (
+    transaction_id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    account_id INT, -- Can be NULL for transactions not directly tied to an account (e.g., income not yet deposited)
+    asset_id INT, -- Can be NULL if transaction is not related to an asset (e.g., account transfer)
+    transaction_type VARCHAR(50) NOT NULL, -- e.g., 'Deposit', 'Withdrawal', 'Buy', 'Sell', 'Dividend', 'Interest'
+    amount DECIMAL(15, 2) NOT NULL,
+    transaction_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    description TEXT,
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (account_id) REFERENCES accounts(account_id) ON DELETE SET NULL,
+    FOREIGN KEY (asset_id) REFERENCES assets(asset_id) ON DELETE SET NULL
+);
+
+-- Optional: Add some sample data for testing
+INSERT INTO users (username, password, email) VALUES
+('john_doe', 'hashed_password_john', 'john.doe@example.com'),
+('jane_smith', 'hashed_password_jane', 'jane.smith@example.com');
+
+INSERT INTO accounts (user_id, account_name, account_type, current_balance, currency) VALUES
+(1, 'John Savings', 'Savings', 15000.00, 'USD'),
+(1, 'John Brokerage', 'Brokerage', 5000.00, 'USD'),
+(2, 'Jane Checking', 'Checking', 3000.00, 'USD');
+
+INSERT INTO assets (user_id, account_id, asset_name, asset_type, current_value, quantity, purchase_price, purchase_date, currency) VALUES
+(1, 2, 'AAPL', 'Stock', 180.50, 10.0000, 170.00, '2023-01-15', 'USD'),
+(1, 2, 'GOOGL', 'Stock', 150.25, 5.0000, 145.00, '2023-02-20', 'USD'),
+(1, NULL, 'Rental Property 1', 'Real Estate', 300000.00, 1.0000, 250000.00, '2020-05-10', 'USD'),
+(2, 3, 'ETH', 'Cryptocurrency', 2500.00, 0.5000, 2000.00, '2024-03-01', 'USD');
+
+INSERT INTO transactions (user_id, account_id, transaction_type, amount, description) VALUES
+(1, 1, 'Deposit', 5000.00, 'Initial deposit to savings'),
+(1, 2, 'Buy', -1700.00, 'Bought 10 shares of AAPL'),
+(2, 3, 'Deposit', 3000.00, 'Initial deposit to checking');
+
+INSERT INTO transactions (user_id, account_id, asset_id, transaction_type, amount, description) VALUES
+(1, 2, 1, 'Buy', -1700.00, 'Bought 10 shares of AAPL'),
+(1, 2, 2, 'Buy', -725.00, 'Bought 5 shares of GOOGL'),
+(2, 3, 4, 'Buy', -1000.00, 'Bought 0.5 ETH');
