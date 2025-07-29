@@ -1,6 +1,6 @@
 # 💰 Wealth Management System
 
-A Python-based CLI application to help users manage their financial investments, including stocks, mutual funds, and insurance. This system allows users to add, delete, view, and update financial assets while storing all records securely in an SQLite database.
+A Python-based GUI(Streamlit) based application to help users manage their financial investments, including stocks, mutual funds, and insurance. This system allows users to add, delete, view, and update financial assets while storing all records securely in an SQLite database.
 
 ---
 
@@ -22,7 +22,7 @@ A Python-based CLI application to help users manage their financial investments,
 
 ```
 Wealth-Management-System/
-├── app.py                  # Main CLI application
+├── app.py                  # Main application
 ├── database_manager.py     # Database abstraction and logic
 ├── Table-Schemas.txt       # SQL schema for initial database setup
 └── README.md               # Project documentation
