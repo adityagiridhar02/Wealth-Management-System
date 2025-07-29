@@ -95,13 +95,6 @@ These are implemented in `database_manager.py`.
 
 ---
 
-## 🧑‍💻 Author
-
-**Aditya Giridhar**
-GitHub: [@adityagiridhar02](https://github.com/adityagiridhar02)
-
----
-
 ## 📝 License
 
 This project is licensed under the [MIT License](LICENSE) - feel free to use and modify.
